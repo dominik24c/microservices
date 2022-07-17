@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  users:
+    build: ./users
+    container_name: users_api
+    volumes:
+      - ./users:/app
+    ports:
+      - "7000:7000"
+    env_file:
+      - ./.env
+    depends_on:
+      - "mongo_db"
+  
+  auth:
+    build: ./auth
+    container_name: auth_api
+    volumes:
+      - ./auth:/app
+    env_file:
+      - ./.env
+    depends_on:
+      - "mongo_db"
+
+  mongo_db:
+    image: mongo
+    container_name: db_mongo
+    restart: always
+    env_file:
+      - ./.env
+
+  
+     
