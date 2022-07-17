@@ -22,5 +22,6 @@ def verify_token_view()-> Response():
     except jwt.ExpiredSignatureError:
         return {"message": "Your signature has expired!"}, 401
 
-    mongo.db.users.find_one_or_404({"_id": ObjectId(payload.get('id'))})
-    return {}, 204
+    id = payload.get('id')
+    mongo.db.users.find_one_or_404({"_id": ObjectId(id)})
+    return {"user_id": id}, 200

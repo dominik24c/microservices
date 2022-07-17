@@ -23,12 +23,29 @@ services:
     depends_on:
       - "mongo_db"
 
+  games:
+    build: ./games
+    container_name: games_api
+    volumes:
+      - ./games:/app
+    ports:
+      - "7002:7002"
+    env_file:
+      - ./.env
+    depends_on:
+      - "mongo_db"
+
   mongo_db:
     image: mongo
     container_name: db_mongo
     restart: always
     env_file:
       - ./.env
+    volumes:
+      - data:/data/db
+
+volumes:
+  data:
 
   
      

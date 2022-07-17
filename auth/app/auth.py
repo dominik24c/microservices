@@ -11,7 +11,6 @@ def verify_token():
         abort(401, "Auth token is missing!")
 
     decoded = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms='HS256')
-    print(decoded)
     return decoded # return dict {id, username}
 
 def get_token(id: str, username: str) -> str:
