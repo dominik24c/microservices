@@ -1,10 +1,11 @@
 from dotenv import load_dotenv
+from flask import Flask
 
 from app import create_app
 
-def main() -> None:
+def main() -> Flask:
     load_dotenv()
-    app = create_app()
-    app.run('0.0.0.0', 7000, debug=True)
+    return create_app()
 
-main()
+
+app = main()

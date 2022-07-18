@@ -13,4 +13,4 @@ COPY . .
 
 EXPOSE 7001
 
-CMD ["python", "main.py"]
+CMD ["gunicorn", "--bind", "0.0.0.0:7001", "main:app"]
