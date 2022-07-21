@@ -13,9 +13,10 @@ from webargs.flaskparser import use_args
 
 from .schemas import (
     UserSchema, UserCreateSchema,
-    UserLoginSchema
+    UserLoginSchema, NewsletterSchema
 )
 from .db import mongo
+from .producer import mb
 
 bp = Blueprint('users', __name__, url_prefix='/users')
 
@@ -59,3 +60,10 @@ def restrict_view() -> Response:
     if response.status_code == 200:
         return {"view": "ok"}, 200
     return response.json(), response.status_code
+
+@bp.post('/newsletter')
+@use_args(NewsletterSchema(), location='json')
+def send_newsletter_view(data) -> Response:
+    
+    mb.publish('send_newsletter', data)
+    return {"message": "Newsletter will be send soon. Check your mailbox!"}, 201

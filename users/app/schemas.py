@@ -12,3 +12,6 @@ class UserCreateSchema(UserSchema):
 class UserLoginSchema(Schema):
     username=fields.Str(required=True)
     password=fields.Str(required=True)
+
+class NewsletterSchema(Schema):
+    email = fields.Email(required=True)
