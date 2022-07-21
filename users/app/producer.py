@@ -4,7 +4,7 @@ import json
 
 class MessageBroker:
     def __init__(self, host: str, hb:int=600, bct:int=300) -> None:
-        parameters = pika.ConnectionParameters(host=host)
+        parameters = pika.ConnectionParameters(host=host, heartbeat=hb, blocked_connection_timeout=bct)
         self.__connection = pika.BlockingConnection(parameters)
         self.__channel = self.__connection.channel()
     
