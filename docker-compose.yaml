@@ -9,7 +9,7 @@ services:
     ports:
       - "7000:7000"
     env_file:
-      - ./.env
+      - ./envs/user_games/.env
     depends_on:
       - "mongo_db"
   
@@ -19,7 +19,7 @@ services:
     volumes:
       - ./auth:/app
     env_file:
-      - ./.env
+      - ./envs/user_games/.env
     depends_on:
       - "mongo_db"
 
@@ -31,21 +31,59 @@ services:
     ports:
       - "7002:7002"
     env_file:
-      - ./.env
+      - ./envs/user_games/.env
     depends_on:
       - "mongo_db"
 
+  newsletter:
+    build: ./newsletter
+    container_name: newsletter_consumer
+    env_file:
+      - ./newsletter/.env
+    depends_on:
+      - rabbitmq
+    
+  games_ratings_consumer:
+    build: ./games_ratings_consumer
+    container_name: games_ratings_consumer
+    env_file:
+      - ./envs/games_ratings/.env
+    depends_on:
+      - mongo_games_ratings_db
+
+  games_ratings:
+    build: ./games_ratings
+    container_name: games_ratings
+    env_file:
+      - ./envs/games_ratings/.env
+    depends_on:
+      - mongo_games_ratings_db
+    ports:
+     - "7003:7003"
+
   mongo_db:
     image: mongo
-    container_name: db_mongo
+    container_name: mongo_db
     restart: always
     env_file:
-      - ./.env
+      - ./envs/user_games/.env
     volumes:
       - ./data:/data/db
 
+  mongo_games_ratings_db:
+    image: mongo
+    container_name: mongo_games_ratings_db
+    restart: always
+    env_file:
+      - ./envs/games_ratings/.env
+    volumes:
+      - ./data_games_ratings:/data/db
+
+  rabbitmq:
+    image: rabbitmq:3.10.6-alpine
+    container_name: rabbitmq_queue
+    restart: always
+
 volumes:
   data:
-
-  
-     
+  data_games_ratings:

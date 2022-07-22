@@ -10,6 +10,7 @@ from .schemas import (
     GameSchema, GamesListSchema
 )
 from .db import mongo
+from .producer import mb
 
 bp = Blueprint('games', __name__, url_prefix='/games')
 
@@ -22,14 +23,21 @@ def create_game(game_data) -> Response:
 
     if response.status_code == 200:
         id = data.get('user_id')
+        game_name = game_data['name']
+
+        game = mongo.db.users.find_one({'_id': ObjectId(id), 'games.name': game_name})
+        if game:
+            return {"message": "You have just rated this game!"}, 400
+
         if 'categories' not in game_data.keys():
             game_data['categories'] = []
         result = mongo.db.users.update_one({"_id": ObjectId(id)}, {'$push':{'games': game_data}})
+
         if result.modified_count > 0:
+            mb.pubish('create_game_ratings', {'name': game_data['name'], 'rating': game_data['rating']})
             return {"message": f"Game was created!"}, 201
         else:
             return {"message": "Something went wrong!"}, 400
-
     return data, response.status_code
 
 @bp.get('/')
@@ -76,13 +84,19 @@ def delete_game(game_name: str) -> Response:
 
     if response.status_code == 200:
         id = data.get('user_id')
+        
+        user = mongo.db.users.find_one({"_id": ObjectId(id), 'games.name': game_name})
+
         result = mongo.db.users.update_one(
             {"_id": ObjectId(id)},
             {"$pull": {"games": {"name": game_name}}}
         )
 
-        if result.modified_count > 0:
+        if user and result.modified_count > 0:
+            game = user['games'][0]
+            mb.pubish('delete_game_ratings', {'name': game['name'], 'rating': game['rating']})
             return {}, 204
+
         return {"message": "Not found game!"}, 404
 
     return data, response.status_code
